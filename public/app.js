@@ -1,26 +1,10 @@
 
 mdc.ripple.MDCRipple.attachTo(document.querySelector('.mdc-button'));
-import './style.css';
+//import './main.css';
 
-import firebase from './firebase/app';
-import 'firebase/firestore';
 
-var firebaseConfig = {
-  apiKey: "AIzaSyD4wrBaTViiquRipOA1XBh03NhR7gOVKjE",
-  authDomain: "streamingtest-d464b.firebaseapp.com",
-  databaseURL: "https://streamingtest-d464b-default-rtdb.firebaseio.com",
-  projectId: "streamingtest-d464b",
-  storageBucket: "streamingtest-d464b.appspot.com",
-  messagingSenderId: "311055573356",
-  appId: "1:311055573356:web:e393555461faaf5ba41349",
-  measurementId: "G-4CYK4X98Q0"
-};
-// Initialize Firebase
-if (!firebase.apps.length) {
- firebase.initializeApp(firebaseConfig);
-}
-//firebase.analytics();
-const auth = firebase.auth();
+
+
 
 const configuration = {
   iceServers: [

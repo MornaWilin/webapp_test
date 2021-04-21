@@ -59,6 +59,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
 const txtEmail = document.getElementById('txtEmail');
 const txtPassword = document.getElementById('txtPassword');
+const txtEmailReg = document.getElementById('txtEmailReg');
+const txtPasswordReg = document.getElementById('txtPasswordReg');
 const btnLogin = document.getElementById('btnLogin');
 const btnSignUp = document.getElementById('btnSignUp');
 const btnLogout = document.getElementById('btnLogout');
@@ -75,10 +77,24 @@ btnLogin.addEventListener('click', e => {
 
 
 });
-btnSignUp.addEventListener('click', e => {
+
+btnLogout.addEventListener('click', e => {
 
   const email = txtEmail.value;
   const pass = txtPassword.value;
+  
+
+  const promise = auth.signOutWithEmailAndPassword(email, pass);
+
+  promise.catch(e => console.log(e.message));
+
+
+});
+
+btnSignUp.addEventListener('click', e => {
+
+  const email = txtEmailReg.value;
+  const pass = txtPasswordReg.value;
   
 
   const promise = auth.createUserWithEmailAndPassword(email, pass);
