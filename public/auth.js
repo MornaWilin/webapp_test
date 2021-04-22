@@ -19,8 +19,8 @@ function clearInputError(inputElement) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  const loginForm = document.querySelector("#login");
-  const createAccountForm = document.querySelector("#createAccount");
+  const loginForm = document.getElementById('login');
+  const createAccountForm = document.getElementById('createAccount');
 
   document.querySelector("#linkCreateAccount").addEventListener("click", e => {
       e.preventDefault();
@@ -64,6 +64,22 @@ const txtPasswordReg = document.getElementById('txtPasswordReg');
 const btnLogin = document.getElementById('btnLogin');
 const btnSignUp = document.getElementById('btnSignUp');
 const btnLogout = document.getElementById('btnLogout');
+const btnOpenApp = document.getElementById('btnOpenApp');
+const container = document.getElementById('container');
+const linkCreate = document.getElementById('linkCreateAccount');
+const linkLogin = document.getElementById('linkLogin')
+const loginForm = document.getElementById('login');
+  const createAccountForm = document.getElementById('createAccount');
+
+
+linkCreate.addEventListener('click', e => {
+  createAccountForm.classList.remove('hide')
+  loginForm.classList.add('hide')
+})
+linkLogin.addEventListener('click', e => {
+  createAccountForm.classList.add('hide')
+  loginForm.classList.remove('hide')
+})
 
 btnLogin.addEventListener('click', e => {
 
@@ -71,12 +87,16 @@ btnLogin.addEventListener('click', e => {
   const pass = txtPassword.value;
   
 
-  const promise = auth.signInWithEmailAndPassword(email, pass);
+  
 
+const promise = auth.signInWithEmailAndPassword(email, pass)  
+ 
   promise.catch(e => console.log(e.message));
-
-
+  
+  
 });
+
+
 
 btnLogout.addEventListener('click', e => {
 
@@ -84,7 +104,7 @@ btnLogout.addEventListener('click', e => {
   const pass = txtPassword.value;
   
 
-  const promise = auth.signOutWithEmailAndPassword(email, pass);
+  const promise = auth.signOut();
 
   promise.catch(e => console.log(e.message));
 
@@ -104,15 +124,25 @@ btnSignUp.addEventListener('click', e => {
 
 });
 
-//firebase.auth().onAuthStateChanged(firebaseUser => {
 
-//if(firebaseUser){
-  ////console.log(firebaseUser);
-//}
-//else
-///{
-  //console.log('not logged in');
-//}
 
-//});
+
+auth.onAuthStateChanged(firebaseUser => {
+
+if(firebaseUser){
+  console.log(firebaseUser);
+  btnLogin.classList.add('hide')
+  btnOpenApp.classList.remove('hide')
+  container.classList.add('hide')
+}
+else
+{
+  console.log('not logged in');
+  btnLogin.classList.remove('hide')
+  btnOpenApp.classList.add('hide')
+  container.classList.remove('hide')
+  
+}
+
+});
 

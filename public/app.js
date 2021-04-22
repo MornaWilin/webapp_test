@@ -3,6 +3,8 @@ mdc.ripple.MDCRipple.attachTo(document.querySelector('.mdc-button'));
 //import './main.css';
 
 
+const btnAudio = document.getElementById('btnAudioToggle');
+const btnVideo = document.getElementById('btnVideoToggle');
 
 
 
@@ -24,6 +26,19 @@ let remoteStream = null;
 let roomDialog = null;
 let roomId = null;
 
+
+document.querySelector('#sendButton').disabled = false;
+
+const msgerForm = get(".msger-inputarea");
+const msgerInput = get(".msger-input");
+const msgerChat = get(".msger-chat");
+
+const BOT_IMG = "https://image.flaticon.com/icons/svg/327/327779.svg";
+const PERSON_IMG = "https://image.flaticon.com/icons/svg/145/145867.svg";
+const BOT_NAME = "BOT";
+const PERSON_NAME = "Sajad";
+
+var sendChannel = null;
 //var firebase = require('firebase');
   
 function init() {
@@ -42,6 +57,10 @@ async function createRoom() {
 
   console.log('Create PeerConnection with configuration: ', configuration);
   peerConnection = new RTCPeerConnection(configuration);
+
+  sendChannel = peerConnection.createDataChannel("sendChannel");
+
+    sendChannel.onmessage = handleReceiveMessage;
 
   registerPeerConnectionListeners();
 
@@ -79,6 +98,19 @@ async function createRoom() {
   document.querySelector(
       '#currentRoom').innerText = `Current room is ${roomRef.id} - You are the caller!`;
   // Code for creating a room above
+  msgerForm.addEventListener("submit", event => {
+    event.preventDefault();
+
+    const msgText = msgerInput.value;
+    sendChannel.send(msgText);
+
+    if (!msgText) return;
+
+    appendMessage(PERSON_NAME, PERSON_IMG, "right", msgText);
+    msgerInput.value = "";
+
+
+});
 
   peerConnection.addEventListener('track', event => {
     console.log('Got remote track:', event.streams[0]);
@@ -125,6 +157,21 @@ function joinRoom() {
         await joinRoomById(roomId);
       }, {once: true});
   roomDialog.open();
+
+
+  msgerForm.addEventListener("submit", event => {
+    event.preventDefault();
+
+    const msgText = msgerInput.value;
+    sendChannel.send(msgText);
+
+    if (!msgText) return;
+
+    appendMessage(PERSON_NAME, PERSON_IMG, "right", msgText);
+    msgerInput.value = "";
+
+
+});
 }
 
 async function joinRoomById(roomId) {
@@ -136,7 +183,12 @@ async function joinRoomById(roomId) {
   if (roomSnapshot.exists) {
     console.log('Create PeerConnection with configuration: ', configuration);
     peerConnection = new RTCPeerConnection(configuration);
-    registerPeerConnectionListeners();
+        registerPeerConnectionListeners();
+
+        peerConnection.ondatachannel = (event) => {
+            sendChannel = event.channel;
+            sendChannel.onmessage = handleReceiveMessage;
+        };
     localStream.getTracks().forEach(track => {
       peerConnection.addTrack(track, localStream);
     });
@@ -267,4 +319,80 @@ function registerPeerConnectionListeners() {
   });
 }
 
+function toggleTrack(stream,type) {
+  stream.getTracks().forEach((track) => {
+      if (track.kind === type) {
+          track.enabled = !track.enabled;
+      }
+  });
+}
+
+btnAudio.addEventListener('click', e => {
+
+ toggleTrack(localStream, 'audio');
+
+});
+
+
+btnVideo.addEventListener('click', e => {
+  
+  toggleTrack(localStream, 'video')
+
+});
+function handleReceiveMessage(event) {
+  appendMessage("", "PERSON_IMG", "left", event.data);
+}
+
+
+function handleSendChannelStatusChange(event) {
+  if (sendChannel) {
+      var state = sendChannel.readyState;
+
+      if (state === "open") {
+          console.log('DROCHI');
+          document.querySelector('#sendButton').disabled = false;
+      } else {
+          console.log('NE DROCHI');
+          document.querySelector('#sendButton').disabled = true;
+      }
+  }
+}
+
+
+
+
+
+function appendMessage(name, img, side, text) {
+  //   Simple solution for small apps
+  const msgHTML = `
+  <div class="msg ${side}-msg">
+    <div class="msg-img" style="background-image: url(${img})"></div>
+
+    <div class="msg-bubble">
+      <div class="msg-info">
+        <div class="msg-info-name">${name}</div>
+        <div class="msg-info-time">${formatDate(new Date())}</div>
+      </div>
+
+      <div class="msg-text">${text}</div>
+    </div>
+  </div>
+`;
+
+  msgerChat.insertAdjacentHTML("beforeend", msgHTML);
+  msgerChat.scrollTop += 500;
+}
+
+
+// Utils
+function get(selector, root = document) {
+  return root.querySelector(selector);
+}
+
+function formatDate(date) {
+  const h = "0" + date.getHours();
+  const m = "0" + date.getMinutes();
+
+  return `${h.slice(-2)}:${m.slice(-2)}`;
+}
 init();
